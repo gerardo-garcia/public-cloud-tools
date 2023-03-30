@@ -1,0 +1,24 @@
+boto3==1.26.102
+    # via -r requirements.in
+botocore==1.29.102
+    # via
+    #   boto3
+    #   s3transfer
+jmespath==1.0.1
+    # via
+    #   boto3
+    #   botocore
+prettytable==3.6.0
+    # via -r requirements.in
+python-dateutil==2.8.2
+    # via botocore
+pyyaml==6.0
+    # via -r requirements.in
+s3transfer==0.6.0
+    # via boto3
+six==1.16.0
+    # via python-dateutil
+urllib3==1.26.15
+    # via botocore
+wcwidth==0.2.6
+    # via prettytable
