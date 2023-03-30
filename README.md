@@ -8,6 +8,7 @@ This projects collects a set of tools to interact with public clouds:
 
 ```bash
 $ ./public_flavors.py -h
+```
  
 ## Requirements
 
