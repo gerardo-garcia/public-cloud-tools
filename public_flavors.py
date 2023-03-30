@@ -70,25 +70,44 @@ def get_aws_instance_types(flavor_list):
     # Use the describe_instance_types() method to retrieve information about instance types
     response = ec2.describe_instance_types()
 
-    # Initialize a PrettyTable with column names
-    table = PrettyTable()
-    table.field_names = ["Instance Type", "vCPUs", "Memory (GiB)"]
-
+    n_flavors = 0
     # Extract the instance types from the response and add them to the table
-    for instance_type in response["InstanceTypes"]:
-        name = instance_type["InstanceType"]
-        vcpus = instance_type["VCpuInfo"]["DefaultVCpus"]
-        memory = instance_type["MemoryInfo"]["SizeInMiB"] / 1024.0
-
-        # Add the flavor
-        flavor_list.append(
-            [
-                cloud_name,
-                name,
-                vcpus,
-                memory,
-            ]
-        )
+    while True:
+        for instance_type in response["InstanceTypes"]:
+            n_flavors += 1
+            logger.info(f"Flavor: {n_flavors}")
+            logger.debug(f"{instance_type}")
+    
+            name = instance_type["InstanceType"]
+            logger.info(f"Name: {name}")
+            generation = name[0]
+            logger.info(f"Generation: {generation}")
+            vcpus = instance_type["VCpuInfo"]["DefaultVCpus"]
+            logger.info(f"VCpus: {vcpus}")
+            memory = instance_type["MemoryInfo"]["SizeInMiB"] / 1024.0
+            logger.info(f"Memory: {memory}")
+            storage = instance_type.get("InstanceStorageInfo", "")
+            if storage:
+                storage_disks = storage.get("Disks")
+                storage_total_size = sum([disk.get("SizeInGB") for disk in storage_disks])
+                storage = str(storage_total_size)
+            logger.info(f"Storage: {storage}")
+    
+            # Add the flavor
+            flavor_list.append(
+                [
+                    cloud_name,
+                    name,
+                    generation,
+                    vcpus,
+                    memory,
+                    storage,
+                ]
+            )
+        if "NextToken" in response:
+            response = ec2.describe_instance_types(NextToken=response["NextToken"])
+        else:
+            break
 
     return
 
@@ -122,8 +141,10 @@ if __name__ == "__main__":
     headers = [
         "Cloud",
         "Instance Type",
+        "Generation",
         "vCPUs",
         "Memory (GiB)",
+        "Storage",
     ]
     rows = []
 
